@@ -10,6 +10,7 @@ class ForecastService:
         url = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst"
         page_no = 1
         num_of_rows = 1000
+        data_type = "JSON"
         today = dt.datetime.now()
         (base_date, base_time) = ForecastService.forecast_time(today)
         print(base_date, base_time)
@@ -22,6 +23,7 @@ class ForecastService:
             "ServiceKey": Constant.api_key,
             "pageNo": page_no,
             "numOfRows": num_of_rows,
+            "dataType": data_type,
             "base_date": base_date,
             "base_time": base_time,
             "nx": nx,
@@ -29,7 +31,8 @@ class ForecastService:
         }
 
         res = requests.get(url=url, params=params)
-        json = res.json()
+        data = res.json()
+        print(data)
 
     def forecast_time(today: dt) -> tuple:
         today = dt.datetime.now()
