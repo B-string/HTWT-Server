@@ -2,9 +2,12 @@ import requests
 import datetime as dt
 import asyncio
 import Constant
+import json
+from ShortTermForecast import ShortTermForecastItem
 
 
 class ForecastService:
+    short_term_forecas_item = ShortTermForecastItem()
 
     def short_term_forecast(self):
         url = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst"
@@ -31,8 +34,10 @@ class ForecastService:
         }
 
         res = requests.get(url=url, params=params)
-        data = res.json()
-        print(data)
+        datas = res.json()
+
+        items = datas["response"]["body"]["items"]["item"]
+        self.short_term_forecas_item.items_parsing(items)
 
     def forecast_time(today: dt) -> tuple:
         today = dt.datetime.now()
