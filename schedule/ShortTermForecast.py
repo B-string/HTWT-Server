@@ -1,4 +1,5 @@
 import datetime as dt
+import copy
 
 
 class ShortTermForecastItem:
@@ -35,14 +36,16 @@ class ShortTermForecastItem:
             try:
                 fcst_datetime = dt.datetime.strptime(
                     fcst_date + fcst_time, "%Y%m%d%H%M")
-
                 if fcst_datetime in self.forecast.keys():
-                    self.category_value[item["category"]] = item["fcstValue"]
+                    self.forecast[fcst_datetime][item["category"]
+                                                 ] = item["fcstValue"]
                 else:
-                    self.forecast[fcst_datetime] = self.category_value
-                    self.category_value[item["category"]] = item["fcstValue"]
+                    self.forecast[fcst_datetime] = copy.deepcopy(
+                        self.category_value)
+                    self.forecast[fcst_datetime][item["category"]
+                                                 ] = item["fcstValue"]
             except ValueError as ve:
                 print(f"ValueError: {ve}")
 
-        for i in self.forecast.values():
-            print(i)
+        # for key, val in self.forecast.items():
+        #     print(f"{key} : {val}")
