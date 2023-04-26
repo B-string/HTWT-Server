@@ -1,5 +1,6 @@
 import datetime as dt
 import copy
+import pymysql
 
 
 class ShortTermForecastItem:
