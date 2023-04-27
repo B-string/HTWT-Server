@@ -4,10 +4,13 @@ import asyncio
 import Constant
 import json
 from ShortTermForecast import ShortTermForecastItem
+from DatabaseManager import DatabaseManager
 
 
 class ForecastService:
     short_term_forecas_item = ShortTermForecastItem()
+
+    manager = DatabaseManager()
 
     def short_term_forecast(self):
         url = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst"
@@ -38,6 +41,20 @@ class ForecastService:
 
         items = datas["response"]["body"]["items"]["item"]
         self.short_term_forecas_item.items_parsing(items)
+
+        self.manager.database_connecting(
+            Constant.host,
+            Constant.port,
+            Constant.user,
+            Constant.passwd,
+            Constant.db
+        )
+        for key, val in self.short_term_forecas_item.forecast.items():
+            self.manager.insert_short_term_forecast(
+                table="kr_seoul_61_125", key=key, val=val
+            )
+
+        self.manager.database_closing()
 
     def forecast_time(today: dt) -> tuple:
         today = dt.datetime.now()
