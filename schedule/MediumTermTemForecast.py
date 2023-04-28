@@ -1,0 +1,4 @@
+
+
+class MediumTermTemForecastItem:
+    forecast: dict
