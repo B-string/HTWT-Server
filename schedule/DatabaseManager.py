@@ -25,5 +25,7 @@ class DatabaseManager:
         self.cursor.execute(sql)
         self.db_con.commit()
 
+    # def insert_medium_term_tem_forecast(self, table: str, key: str, val: dict = {}):
+
     def database_closing(self):
         self.db_con.close()

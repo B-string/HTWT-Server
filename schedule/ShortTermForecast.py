@@ -5,7 +5,6 @@ import pymysql
 
 class ShortTermForecastItem:
     forecast: dict
-    fcst_datetime: dt
     category_value: dict
 
     def __init__(self):
