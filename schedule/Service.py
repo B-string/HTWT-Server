@@ -3,13 +3,13 @@ import datetime as dt
 import asyncio
 import Constant
 import json
-from ShortTermForecast import ShortTermForecastItem
+from ShortTermWeatherData import ShortTermWeatherData
 from MediumTermTemForecast import MediumTermForecastItem
 from DatabaseManager import DatabaseManager
 
 
 class ForecastService:
-    short_term_forecas_item = ShortTermForecastItem()
+    short_term_weather_item = ShortTermWeatherData()
     medium_term_forecast_item = MediumTermForecastItem()
 
     manager = DatabaseManager()
@@ -20,7 +20,6 @@ class ForecastService:
         num_of_rows = 1000
         data_type = "JSON"
         (base_date, base_time) = self.short_term_forecast_time()
-        print(base_date, base_time)
 
         # 현재 기준 : 양재동
         nx = 61
@@ -40,22 +39,39 @@ class ForecastService:
         res = requests.get(url=url, params=params)
         datas = res.json()
 
-        items = datas["response"]["body"]["items"]["item"]
-        self.short_term_forecas_item.items_parsing(items)
+        parse: list = datas["response"]["body"]["items"]["item"]
+        today = base_date + base_time
+        items = []
+        # print(parse.__len__())
+        while True:
+            if parse.__len__() == 0:
+                print(parse)
+                break
+            print(parse.__len__())
+            n = self.cut_list(parse, 12)
+            print(n)
 
-        self.manager.database_connecting(
-            Constant.host,
-            Constant.port,
-            Constant.user,
-            Constant.passwd,
-            Constant.db
-        )
-        for key, val in self.short_term_forecas_item.forecast.items():
-            self.manager.insert_short_term_forecast(
-                table="kr_seoul_61_125", key=key, val=val
-            )
+        # for _ in range(0, parse.count()):
+        #     pass
 
-        self.manager.database_closing()
+        # items.append(self.short_term_weather_item.data_parsing(
+        # today, ))
+
+        # self.short_term_forecas_item.items_parsing(items)
+
+        # self.manager.database_connecting(
+        #     Constant.host,
+        #     Constant.port,
+        #     Constant.user,
+        #     Constant.passwd,
+        #     Constant.db
+        # )
+        # # for key, val in self.short_term_forecas_item.forecast.items():
+        #     self.manager.insert_short_term_forecast(
+        #         table="kr_seoul_61_125", key=key, val=val
+        #     )
+
+        # self.manager.database_closing()
 
     def medium_term_forecast(self):
         url = "http://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa"
@@ -80,11 +96,11 @@ class ForecastService:
         res = requests.get(url=url, params=params)
         datas = res.json()
         items = datas["response"]["body"]["items"]["item"][0]
-        print(type(items))
-        print(items.pop("regId"))
-        print(items)
+        # print(type(items))
+        # print(items.pop("regId"))
+        # print(items)
 
-        self.medium_term_forecast_item.items_parsing("ta", items)
+        # self.medium_term_forecast_item.items_parsing("ta", items, tm_fc)
 
         # for key, val in self.medium_term_tem_forecast_item.forecast.items():
 
@@ -112,12 +128,18 @@ class ForecastService:
             today_time = "1800"
         return f"{today_date}{today_time}"
 
+    def cut_list(self, data: list, count: int) -> list:
+        new_data: list = []
+        for i in range(0, count):
+            new_data.append(data.pop(0))
+        return new_data
+
 
 def main():
     print("Hello World")
     test = ForecastService()
-    # test.short_term_forecast()
-    test.medium_term_forecast()
+    test.short_term_forecast()
+    # test.medium_term_forecast()
 
 
 if __name__ == "__main__":
