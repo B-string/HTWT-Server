@@ -41,15 +41,15 @@ class ForecastService:
 
         parse: list = datas["response"]["body"]["items"]["item"]
         today = base_date + base_time
-        items = []
+        self.short_term_weather_item.data_parsing(today, parse)
         # print(parse.__len__())
-        while True:
-            if parse.__len__() == 0:
-                print(parse)
-                break
-            print(parse.__len__())
-            n = self.cut_list(parse, 12)
-            print(n)
+        # while True:
+        #     if parse.__len__() == 0:
+        #         print(parse)
+        #         break
+        #     print(parse.__len__())
+        #     n = self.cut_list(parse, 12)
+        #     print(n)
 
         # for _ in range(0, parse.count()):
         #     pass
@@ -109,12 +109,12 @@ class ForecastService:
         today_date = today.strftime("%Y%m%d")
         hour = int(today.strftime("%H"))
         today_time: str
-        if hour >= 14 and hour <= 17:
-            today_time = "1400"
-        elif hour >= 5 and hour <= 8:
+        if hour >= 5 and hour <= 8:
             today_time = "0500"
+        elif hour >= 2 and hour <= 5:
+            today_time = "0200"
         else:
-            today_time = "0500"
+            today_time = "0200"
         return (today_date, today_time)
 
     def medium_term_forecast_time(self) -> str:
