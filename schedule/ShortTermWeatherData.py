@@ -84,11 +84,10 @@ class ShortTermWeatherData:
                     category: str = data["category"]
                     self.weather_data[self.switch_case.get(
                         category.lower())] = data["fcstValue"]
+                    print(type(data["fcstValue"]))
                 else:
-                    print(self.weather_data)
 
-                    # forecast.append(copy.deepcopy(self.weather_data))
-                    # self.weather_data["fcst_datetime"] = fcst_datetime
-                    break
+                    forecast.append(copy.deepcopy(self.weather_data))
+                    self.weather_data["fcst_datetime"] = fcst_datetime
 
         return forecast

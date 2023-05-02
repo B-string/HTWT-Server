@@ -41,37 +41,20 @@ class ForecastService:
 
         parse: list = datas["response"]["body"]["items"]["item"]
         today = base_date + base_time
-        self.short_term_weather_item.data_parsing(today, parse)
-        # print(parse.__len__())
-        # while True:
-        #     if parse.__len__() == 0:
-        #         print(parse)
-        #         break
-        #     print(parse.__len__())
-        #     n = self.cut_list(parse, 12)
-        #     print(n)
+        items = self.short_term_weather_item.data_parsing(today, parse)
 
-        # for _ in range(0, parse.count()):
-        #     pass
+        # print(items)
 
-        # items.append(self.short_term_weather_item.data_parsing(
-        # today, ))
+        self.manager.database_connecting(
+            Constant.host,
+            Constant.port,
+            Constant.user,
+            Constant.passwd,
+            Constant.db
+        )
+        self.manager.insert_short_term_forecast(items)
 
-        # self.short_term_forecas_item.items_parsing(items)
-
-        # self.manager.database_connecting(
-        #     Constant.host,
-        #     Constant.port,
-        #     Constant.user,
-        #     Constant.passwd,
-        #     Constant.db
-        # )
-        # # for key, val in self.short_term_forecas_item.forecast.items():
-        #     self.manager.insert_short_term_forecast(
-        #         table="kr_seoul_61_125", key=key, val=val
-        #     )
-
-        # self.manager.database_closing()
+        self.manager.database_closing()
 
     def medium_term_forecast(self):
         url = "http://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa"
