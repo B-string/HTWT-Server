@@ -4,13 +4,13 @@ import asyncio
 import Constant
 import json
 from ShortTermWeatherData import ShortTermWeatherData
-from MediumTermTemForecast import MediumTermForecastItem
+from MidTermTemForecast import MidTermForecastItem
 from DatabaseManager import DatabaseManager
 
 
 class ForecastService:
     short_term_weather_item = ShortTermWeatherData()
-    medium_term_forecast_item = MediumTermForecastItem()
+    mid_term_forecast_item = MidTermForecastItem()
 
     manager = DatabaseManager()
 
@@ -56,12 +56,12 @@ class ForecastService:
 
         self.manager.database_closing()
 
-    def medium_term_forecast(self):
-        url = "http://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa"
+    def mid_term_forecast(self):
+        url = "http://apis.data.go.kr/1360000/MidFcstInfoService/getMidFcst"
         page_no = 1
         num_of_rows = 1000
         data_type = "JSON"
-        tm_fc = self.medium_term_forecast_time()
+        tm_fc = self.mid_term_forecast_time()
 
         # 현재 기준: 서울
         reg_id = "11B10101"
@@ -72,13 +72,27 @@ class ForecastService:
             "pageNo": page_no,
             "numOfRows": num_of_rows,
             "dataType": data_type,
-            "regId": reg_id,
+            "stnId": stn_id,
             "tmFc": tm_fc
         }
 
         res = requests.get(url=url, params=params)
         datas = res.json()
-        items = datas["response"]["body"]["items"]["item"][0]
+        print(datas)
+        parse = datas["response"]["body"]["items"]["item"]
+        item = self.mid_term_forecast_item.mid_term_outlook_item_parsing(
+            tm_fc, stn_id, parse)
+
+        self.manager.database_connecting(
+            Constant.host,
+            Constant.port,
+            Constant.user,
+            Constant.passwd,
+            Constant.db
+        )
+        self.manager.insert_mid_term_outlook(item)
+
+        self.manager.database_closing()
         # print(type(items))
         # print(items.pop("regId"))
         # print(items)
@@ -100,7 +114,7 @@ class ForecastService:
             today_time = "0200"
         return (today_date, today_time)
 
-    def medium_term_forecast_time(self) -> str:
+    def mid_term_forecast_time(self) -> str:
         today = dt.datetime.now()
         today_date = today.strftime("%Y%m%d")
         hour = int(today.strftime("%H"))
@@ -121,8 +135,8 @@ class ForecastService:
 def main():
     print("Hello World")
     test = ForecastService()
-    test.short_term_forecast()
-    # test.medium_term_forecast()
+    # test.short_term_forecast()
+    test.mid_term_forecast()
 
 
 if __name__ == "__main__":

@@ -6,6 +6,7 @@ import pymysql
 class ShortTermWeatherData:
 
     weather_data: dict
+    switch_case: dict
     """
     base_datetime DATETIME NOT NULL,
     fcst_datetime DATETIME NOT NULL,
