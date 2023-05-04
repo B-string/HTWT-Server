@@ -34,11 +34,11 @@ class DatabaseManager:
 
     # def insert_medium_term_tem_forecast(self, table: str, key: str, val: dict = {}):
 
-    def insert_mid_term_outlook(self, item: list):
-        sql = f"insert into mid_term_outlook(base_datetime, stn_id, wf_sv) values(STR_TO_DATE(\"{item['base_datetime']}\", \"%Y%m%d%H%i\"), {item['stn_id']}, \"{item['wf_sv']}\")"
+    def insert_mid_term_outlook(self, item):
+        sql = f"insert into mid_term_outlook(base_datetime, stn_id, wf_sv) values(STR_TO_DATE(\"{item.base_datetime}\", \"%Y%m%d%H%i\"), {item.stn_id}, \"{item.wf_sv}\")"
         print(sql)
-        self.cursor.execute(sql)
-        self.db_con.commit()
+        # self.cursor.execute(sql)
+        # self.db_con.commit()
 
     def database_closing(self):
         self.db_con.close()

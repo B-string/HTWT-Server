@@ -83,20 +83,35 @@ class ForecastService:
         item = self.mid_term_forecast_item.mid_term_outlook_item_parsing(
             tm_fc, stn_id, parse)
 
-        self.manager.database_connecting(
-            Constant.host,
-            Constant.port,
-            Constant.user,
-            Constant.passwd,
-            Constant.db
-        )
+        # self.manager.database_connecting(
+        #     Constant.host,
+        #     Constant.port,
+        #     Constant.user,
+        #     Constant.passwd,
+        #     Constant.db
+        # )
         self.manager.insert_mid_term_outlook(item)
 
-        self.manager.database_closing()
+        # self.manager.database_closing()
         # print(type(items))
         # print(items.pop("regId"))
         # print(items)
 
+        url = "http://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa"
+        params = {
+            "ServiceKey": Constant.api_key,
+            "pageNo": page_no,
+            "numOfRows": num_of_rows,
+            "dataType": data_type,
+            "regId": reg_id,
+            "tmFc": tm_fc
+        }
+        res = requests.get(url=url, params=params)
+        datas = res.json()
+        print(datas)
+        parse = datas["response"]["body"]["items"]["item"][0]
+        item = self.mid_term_forecast_item.mid_term_temperature_item_parsing(
+            tm_fc, parse)
         # self.medium_term_forecast_item.items_parsing("ta", items, tm_fc)
 
         # for key, val in self.medium_term_tem_forecast_item.forecast.items():
