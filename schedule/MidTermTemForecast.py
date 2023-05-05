@@ -26,6 +26,16 @@ class MidTermTemperature:
         self.ta_max_low = {}
         self.ta_max_high = {}
 
+    def print_data(self):
+        print(self.base_datetime)
+        print(self.reg_id)
+        print(self.ta_max)
+        print(self.ta_max_low)
+        print(self.ta_max_high)
+        print(self.ta_min)
+        print(self.ta_min_low)
+        print(self.ta_min_high)
+
 
 class MidTermForecastItem:
     mid_term_outlook: MidTermOutlook
@@ -58,11 +68,5 @@ class MidTermForecastItem:
                 self.mid_term_temperature.ta_max[key] = val
             elif "Min" in key:
                 self.mid_term_temperature.ta_min[key] = val
-        print(self.mid_term_temperature.ta_max)
-        print(self.mid_term_temperature.ta_min)
-        print(self.mid_term_temperature.ta_max_low)
-        print(self.mid_term_temperature.ta_min_low)
-        print(self.mid_term_temperature.ta_max_high)
-        print(self.mid_term_temperature.ta_min_high)
 
         return self.mid_term_temperature

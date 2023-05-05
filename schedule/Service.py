@@ -3,16 +3,35 @@ import datetime as dt
 import asyncio
 import Constant
 import json
-from ShortTermWeatherData import ShortTermWeatherData
+from ShortTermForecastItem import ShortTermForecastItem
 from MidTermTemForecast import MidTermForecastItem
 from DatabaseManager import DatabaseManager
 
 
 class ForecastService:
-    short_term_weather_item = ShortTermWeatherData()
-    mid_term_forecast_item = MidTermForecastItem()
+    short_term_weather_item: ShortTermForecastItem
+    mid_term_forecast_item: MidTermForecastItem
 
-    manager = DatabaseManager()
+    manager: DatabaseManager
+
+    def __init__(self) -> None:
+        self.short_term_forecast_item = ShortTermForecastItem()
+        self.mid_term_forecast_item = MidTermForecastItem()
+
+        self.manager = DatabaseManager()
+        self.manager.database_connecting(
+            Constant.host,
+            Constant.port,
+            Constant.user,
+            Constant.passwd,
+            Constant.db
+        )
+        self.manager.init_table()
+        # self.manager.database_closing()
+
+    def insert_forecast(self) -> None:
+        self.short_term_forecast()
+        self.mid_term_forecast()
 
     def short_term_forecast(self):
         url = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst"
@@ -41,22 +60,15 @@ class ForecastService:
 
         parse: list = datas["response"]["body"]["items"]["item"]
         today = base_date + base_time
-        items = self.short_term_weather_item.data_parsing(today, parse)
+        items = self.short_term_forecast_item.data_parsing(parse)
 
-        # print(items)
-
-        self.manager.database_connecting(
-            Constant.host,
-            Constant.port,
-            Constant.user,
-            Constant.passwd,
-            Constant.db
-        )
         self.manager.insert_short_term_forecast(items)
 
-        self.manager.database_closing()
-
     def mid_term_forecast(self):
+        self.mid_term_forecast_outlook()
+        self.mid_term_forecast_temperature()
+
+    def mid_term_forecast_outlook(self):
         url = "http://apis.data.go.kr/1360000/MidFcstInfoService/getMidFcst"
         page_no = 1
         num_of_rows = 1000
@@ -64,7 +76,6 @@ class ForecastService:
         tm_fc = self.mid_term_forecast_time()
 
         # 현재 기준: 서울
-        reg_id = "11B10101"
         stn_id = "109"
 
         params = {
@@ -78,26 +89,18 @@ class ForecastService:
 
         res = requests.get(url=url, params=params)
         datas = res.json()
-        print(datas)
         parse = datas["response"]["body"]["items"]["item"]
         item = self.mid_term_forecast_item.mid_term_outlook_item_parsing(
             tm_fc, stn_id, parse)
-
-        # self.manager.database_connecting(
-        #     Constant.host,
-        #     Constant.port,
-        #     Constant.user,
-        #     Constant.passwd,
-        #     Constant.db
-        # )
         self.manager.insert_mid_term_outlook(item)
 
-        # self.manager.database_closing()
-        # print(type(items))
-        # print(items.pop("regId"))
-        # print(items)
-
+    def mid_term_forecast_temperature(self):
         url = "http://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa"
+        page_no = 1
+        num_of_rows = 1000
+        data_type = "JSON"
+        tm_fc = self.mid_term_forecast_time()
+        reg_id = "11B10101"
         params = {
             "ServiceKey": Constant.api_key,
             "pageNo": page_no,
@@ -108,13 +111,11 @@ class ForecastService:
         }
         res = requests.get(url=url, params=params)
         datas = res.json()
-        print(datas)
         parse = datas["response"]["body"]["items"]["item"][0]
         item = self.mid_term_forecast_item.mid_term_temperature_item_parsing(
             tm_fc, parse)
-        # self.medium_term_forecast_item.items_parsing("ta", items, tm_fc)
 
-        # for key, val in self.medium_term_tem_forecast_item.forecast.items():
+        self.manager.insert_mid_term_temperature(item)
 
     def short_term_forecast_time(self) -> tuple:
         today = dt.datetime.now()
@@ -146,12 +147,16 @@ class ForecastService:
             new_data.append(data.pop(0))
         return new_data
 
+    def __del__(self):
+        self.manager.database_closing()
+
 
 def main():
     print("Hello World")
-    test = ForecastService()
+    forecast_service = ForecastService()
+    forecast_service.insert_forecast()
     # test.short_term_forecast()
-    test.mid_term_forecast()
+    # test.mid_term_forecast()
 
 
 if __name__ == "__main__":

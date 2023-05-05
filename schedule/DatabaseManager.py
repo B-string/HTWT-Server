@@ -5,6 +5,8 @@ class DatabaseManager:
 
     db_con = None
     cursor = None
+    tables = ["short_term_weather_data",
+              "mid_term_outlook", "mid_term_temperature"]
 
     def database_connecting(self, host: str, port: int, user: str, passwd: str, db: str, charset: str = 'utf8'):
         if self.db_con == None:
@@ -15,14 +17,28 @@ class DatabaseManager:
         else:
             print("이미 연결이 존재합니다.")
 
-    def insert_short_term_forecast(self, items: list):
-        for item in items:
-            # sql 문을 개선할 수 있는지 고민해보자
-            sql = f"insert into short_term_weather_data(base_datetime, fcst_datetime, nx, ny, temperature, max_temperature, min_temperature, u_wind, v_wind, wind_direction, wind_speed, sky_condition, precipitation_type, probability_of_precipitation, wave_height, precipitation_amount, relative_humidity, snowfall_amount) values(STR_TO_DATE(\"{item['base_datetime']}\", \"%Y%m%d%H%i\"), STR_TO_DATE(\"{item['fcst_datetime']}\", \"%Y%m%d%H%i\"), {item['nx']}, {item['ny']}, {item['temperature']}, {item['max_temperature']}, {item['min_temperature']}, {item['u_wind']}, {item['v_wind']}, {item['wind_direction']}, {item['wind_speed']}, {item['sky_condition']}, {item['precipitation_type']}, {item['probability_of_precipitation']}, {item['wave_height']}, \"{item['precipitation_amount']}\", {item['relative_humidity']}, \"{item['snowfall_amount']}\")"
-            print(sql)
-            self.cursor.execute(sql)
+    def init_table(self):
+        try:
+            for table in self.tables:
+                sql = f"TRUNCATE {table}"
+                self.cursor.execute(sql)
+        except pymysql.err as e:
+            print(e)
+            self.db_con.rollback()
+        # self.db_con.commit()
 
-        self.db_con.commit()
+    def insert_short_term_forecast(self, items: list):
+        try:
+            for item in items:
+                # sql 문을 개선할 수 있는지 고민해보자
+                sql = f"insert into short_term_weather_data(base_datetime, fcst_datetime, nx, ny, temperature, max_temperature, min_temperature, u_wind, v_wind, wind_direction, wind_speed, sky_condition, precipitation_type, probability_of_precipitation, wave_height, precipitation_amount, relative_humidity, snowfall_amount) values(STR_TO_DATE(\"{item.base_datetime}\", \"%Y%m%d%H%i\"), STR_TO_DATE(\"{item.fcst_datetime}\", \"%Y%m%d%H%i\"), {item.nx}, {item.ny}, {item.temperature}, {item.max_temperature}, {item.min_temperature}, {item.u_wind}, {item.v_wind}, {item.wind_direction}, {item.wind_speed}, {item.sky_condition}, {item.precipitation_type}, {item.probability_of_precipitation}, {item.wave_height}, \"{item.precipitation_amount}\", {item.relative_humidity}, \"{item.snowfall_amount}\")"
+                print(sql)
+                self.cursor.execute(sql)
+        except pymysql.err as e:
+            print(e)
+            self.db_con.rollback()
+
+        # self.db_con.commit()
         # sql = f"insert into {table} values(\"{key}\""
 
         # for i in val.values():
@@ -35,10 +51,56 @@ class DatabaseManager:
     # def insert_medium_term_tem_forecast(self, table: str, key: str, val: dict = {}):
 
     def insert_mid_term_outlook(self, item):
-        sql = f"insert into mid_term_outlook(base_datetime, stn_id, wf_sv) values(STR_TO_DATE(\"{item.base_datetime}\", \"%Y%m%d%H%i\"), {item.stn_id}, \"{item.wf_sv}\")"
+
+        sql = f"insert into mid_term_outlook(base_datetime, stn_id, wf_sv) values(STR_TO_DATE(\"{item.base_datetime}\",\"%Y%m%d%H%i\"), {item.stn_id}, \"{item.wf_sv}\")"
         print(sql)
-        # self.cursor.execute(sql)
+        try:
+            self.cursor.execute(sql)
+        except pymysql.err as e:
+            print(e)
+            self.db_con.rollback()
         # self.db_con.commit()
 
+    def insert_mid_term_temperature(self, item):
+        sql = "INSERT INTO mid_term_temperature (base_datetime, reg_id"
+
+        values = f"VALUES (STR_TO_DATE(\"{item.base_datetime}\", \"%Y%m%d%H%i\"), '{item.reg_id}'"
+        for key, val in item.ta_max.items():
+            sql += f", {key}"
+            values += f", {val}"
+
+        for key, val in item.ta_max_low.items():
+            sql += f", {key}"
+            values += f", {val}"
+
+        for key, val in item.ta_max_high.items():
+            sql += f", {key}"
+            values += f", {val}"
+
+        for key, val in item.ta_min.items():
+            sql += f", {key}"
+            values += f", {val}"
+
+        for key, val in item.ta_min_low.items():
+            sql += f", {key}"
+            values += f", {val}"
+
+        for key, val in item.ta_min_high.items():
+            sql += f", {key}"
+            values += f", {val}"
+        sql += ")"
+        values += ");"
+
+        sql += values
+        print(sql)
+        try:
+            self.cursor.execute(sql)
+        except pymysql.err as e:
+            print(e)
+            self.db_con.rollback()
+
     def database_closing(self):
+        self.db_con.commit()
         self.db_con.close()
+        self.db_con = None
+        self.cursor = None
