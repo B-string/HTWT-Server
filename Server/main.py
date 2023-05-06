@@ -32,7 +32,7 @@ def read_item(item_id: int, q: Union[str, None] = None):
     return {"item_id": item_id, "q": q}
 
 
-@app.get("/getShortTermForecast/", response_model=schemas.ShortBase)
+@app.get("/getShortTermForecast/", response_model=schemas.ShortTermForecast)
 def transport_short_term_forecast(nx: int, ny: int, db: Session = Depends(get_db)):
     data = crud.get_short(db, nx, ny)
     return data

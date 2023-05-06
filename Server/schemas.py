@@ -1,11 +1,11 @@
 from pydantic import BaseModel
-import datetime
+from datetime import datetime
 
 
 class ShortBase(BaseModel):
     id: int
-    base_datetime: str
-    fcst_datetime: str
+    base_datetime: datetime
+    fcst_datetime: datetime
     nx: int
     ny: int
 
