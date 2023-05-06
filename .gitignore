@@ -11,7 +11,8 @@ __pycache__/
 *.so
 
 # Constants
-Constant.py
+ScheduleConstant.py
+ServerConstant.py
 # Distribution / packaging
 .Python
 build/
