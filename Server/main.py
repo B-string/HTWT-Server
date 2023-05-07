@@ -22,17 +22,22 @@ def get_db():
         db.close()
 
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
-
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
-
-
-@app.get("/getShortTermForecast/", response_model=schemas.ShortTermForecast)
+@app.get("/getShortTermForecast/", response_model=schemas.ShortTermForecastList)
 def transport_short_term_forecast(nx: int, ny: int, db: Session = Depends(get_db)):
     data = crud.get_short(db, nx, ny)
+
+    return data
+
+
+@app.get("/getMidTermTemperature/", response_model=schemas.MidTermTemperature)
+def transport_mid_term_temperature(reg_id: str, db: Session = Depends(get_db)):
+    data = crud.get_mid_temperature(db, reg_id)
+
+    return data
+
+
+@app.get("/getMidTermOutlook/", response_model=schemas.MidTermOutlook)
+def transport_mid_term_outlook(stn_id: int, db: Session = Depends(get_db)):
+    data = crud.get_mid_outlook(db, stn_id)
+
     return data

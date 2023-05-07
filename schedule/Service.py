@@ -1,7 +1,7 @@
 import requests
 import datetime as dt
 import asyncio
-import Constant
+import ScheduleConstant as Constant
 import json
 from ShortTermForecastItem import ShortTermForecastItem
 from MidTermTemForecast import MidTermForecastItem
