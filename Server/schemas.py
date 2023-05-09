@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import List
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -24,12 +24,12 @@ class ShortTermForecast(BaseModel):
     relative_humidity: float
     snowfall_amount: str
 
+    class Config:
+        orm_mode = True
+
 
 class ShortTermForecastList(BaseModel):
     forecasts: List[ShortTermForecast]
-
-    class Config:
-        orm_mode = True
 
 
 class MidTermTemperature(BaseModel):

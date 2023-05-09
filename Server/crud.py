@@ -5,9 +5,13 @@ import schemas
 
 
 def get_short(db: Session, nx: int, ny: int):
-    forecasts = db.query(models.ShortTermForecast).filter(
-        models.ShortTermForecast.nx == nx, models.ShortTermForecast.ny == ny).all()
+    # forecasts = db.query(models.ShortTermForecast).filter(
+    #     models.ShortTermForecast.nx == nx, models.ShortTermForecast.ny == ny).all()
 
+    forecasts = db.query(models.ShortTermForecast).all()
+    print(forecasts[0].id)
+    for row in forecasts:
+        print(type(row.id))
     return schemas.ShortTermForecastList(forecasts=forecasts)
 
 
