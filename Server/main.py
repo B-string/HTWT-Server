@@ -40,5 +40,4 @@ def transport_mid_term_temperature(reg_id: str, db: Session = Depends(get_db)):
 def transport_mid_term_outlook(stn_id: int, db: Session = Depends(get_db)):
     data = crud.get_mid_outlook(db, stn_id)
 
-    print(type(data))
     return data
